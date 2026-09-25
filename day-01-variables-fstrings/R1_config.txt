@@ -1,0 +1,10 @@
+hostname R1
+ip domain-name lab.local
+banner motd ^Authorized Access only^
+!
+interface GigabitEthernet0/1
+ description Corporate LAN
+ ip address 10.10.10.1 255.255.255.0
+ no shutdown
+!
+end

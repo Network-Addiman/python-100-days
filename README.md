@@ -17,6 +17,7 @@ I'm a network and systems administrator with four years of MSP experience (Tier 
 | 1 | Variables, data types, `input()`, f-strings, writing files | [`Day-1.py`](day-01-variables-fstrings/Day-1.py) | Prompts for device details and generates a base IOS config, saved to `<hostname>_config.txt` |
 | 2 | Type conversion, string methods, `split()` and indexing | [`day-2-practice.py`](day-02-strings-type-conversion/day-2-practice.py) | Takes a /24 network and builds the VLAN, SVI and access-port config, deriving the VLAN ID, gateway and broadcast from the octets |
 | 3 | Lists, list comprehensions, `for` loops, `range()` | [`bulk_builder.py`](day-03-lists-loops/bulk_builder.py) | Bulk switch builder: creates multiple named VLANs and configures a range of access ports, with a check for undefined VLANs |
+| 4 | `if`/`elif`/`else`, comparison and boolean operators, `in`, truthiness, `continue` | [`day-04-conditionals-vlan_validator.py`](day-04-if-elif-else/day-04-conditionals-vlan_validator.py) | Validates a batch of VLAN requests (non-numeric, out-of-range, reserved, existing and duplicate IDs), then builds clean IOS config for the valid ones |
 
 ---
 
@@ -69,9 +70,27 @@ I'm a network and systems administrator with four years of MSP experience (Tier 
 
 ---
 
+### Day 4: Conditionals and a VLAN Request Validator
+**Folder:** [`day-04-if-elif-else`](day-04-if-elif-else/)
+
+**Concepts:** `if`/`elif`/`else` chains, comparison operators and chained comparisons (`1002 <= vid <= 1005`), `and`/`or`/`not`, membership tests with `in`, truthiness (empty strings and lists are `False`), `continue`, string slicing, and zero-padded f-string formatting (`{vid:04d}`).
+
+**Project: VLAN request validator.** Takes a batch of messy, human-typed VLAN requests (`"id:name"`) and checks each one before anything reaches the switch. The script:
+- Rejects non-numeric IDs, IDs above 4094 and the reserved range 1002–1005
+- Skips VLANs that already exist on the switch and duplicates within the same batch
+- Uses the IOS default name (`VLAN0040`) when no name is given
+- Cleans names to IOS style (trimmed, uppercase, spaces → underscores, max 32 characters)
+- Prints a rejection report, then a config block ready to paste, then an accepted/rejected summary
+
+**Practice file:** `day-4.py`, with VLAN range checks, default names, `continue` for interface status triage, and truthiness drills.
+
+**Takeaway:** Validate before you configure. A few `if` checks catch bad input that would otherwise produce a failed or broken config on the device.
+
+---
+
 ## Running the Scripts
 
-Requires Python 3. Each script is interactive, so run it and answer the prompts:
+Requires Python 3. Most scripts are interactive, so run them and answer the prompts (the Day 4 validator runs on its built-in sample data):
 
 ```bash
 cd day-03-lists-loops

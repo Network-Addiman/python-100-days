@@ -19,6 +19,7 @@ I'm a network and systems administrator with four years of MSP experience (Tier 
 | 3 | Lists, list comprehensions, `for` loops, `range()` | [`bulk_builder.py`](day-03-lists-loops/bulk_builder.py) | Bulk switch builder: creates multiple named VLANs and configures a range of access ports, with a check for undefined VLANs |
 | 4 | `if`/`elif`/`else`, comparison and boolean operators, `in`, truthiness, `continue` | [`day-04-conditionals-vlan_validator.py`](day-04-if-elif-else/day-04-conditionals-vlan_validator.py) | Validates a batch of VLAN requests (non-numeric, out-of-range, reserved, existing and duplicate IDs), then builds clean IOS config for the valid ones |
 | 5 | Dictionaries, `.get()`, `.items()`/`.keys()`/`.values()`, nested dicts, `while` loops | [`lab_inventory.py`](day-05-dictionaries/lab_inventory.py) | Interactive CML lab inventory: look up devices to generate interface description config, add validated devices, and view a summary table |
+| 6 | Functions, parameters and arguments, `return`, default values, scope, docstrings, nested `while` loops and `break` | [`lab_config_builder.py`](day-06-functions/lab_config_builder.py) | Menu-driven switch config builder: helper functions assemble mgmt, VLAN and access-port config per device (or all devices), skipping invalid VLANs |
 
 ---
 
@@ -86,6 +87,40 @@ I'm a network and systems administrator with four years of MSP experience (Tier 
 **Practice file:** `day-4.py`, with VLAN range checks, default names, `continue` for interface status triage, and truthiness drills.
 
 **Takeaway:** Validate before you configure. A few `if` checks catch bad input that would otherwise produce a failed or broken config on the device.
+
+---
+
+### Day 5: Dictionaries and a CML Lab Inventory
+**Folder:** [`day-05-dictionaries`](day-05-dictionaries/)
+
+**Concepts:** creating dictionaries, reading, changing, adding and deleting keys, `.get()` with defaults, `in` for key checks, `.items()`/`.keys()`/`.values()`, nested dictionaries (`inventory["SW1"]["mgmt_ip"]`), `while` loops for menus, and f-string alignment specifiers (`:<10`, `:-^40`).
+
+**Project: interactive CML lab inventory.** My CML lab topology (core router, distribution and access switches) is stored as a nested dictionary of hostname → management IP, role and interface descriptions. A menu-driven script lets me:
+- Query one or more devices (comma-separated) and generate their `interface` / `description` config
+- Add a new device, with checks for blank input, invalid roles, duplicate hostnames and management IPs already in use
+- View a formatted summary table of hostname, role and management IP
+- Get a list of valid devices when a lookup fails
+
+**Practice file:** `day-05.py`, with dictionary CRUD, `.get()` defaults, looping with `.items()`, nested lookups and format specifier drills.
+
+**Takeaway:** Nested dictionaries are basically a source of truth. Once the lab lives in one structure, generating config or reports from it is just a loop.
+
+---
+
+### Day 6: Functions and a Lab Config Builder
+**Folder:** [`day-06-functions`](day-06-functions/)
+
+**Concepts:** defining and calling functions, parameters vs. arguments (positional and keyword), `return` vs. `print()`, default parameter values, local scope, docstrings, `"\n".join()` to build multi-line config, and nested `while` loops with `break` for sub-menus.
+
+**Project: lab config builder.** The inline logic from earlier days is refactored into small, reusable functions, each returning a config block as a string:
+- `is_valid_vlan()` checks the 1–4094 range and blocks reserved VLANs 1002–1005
+- `mgmt_config()`, `vlan_config()` and `access_port_config()` each build one section of IOS config, with defaults for mask, management VLAN and port description
+- `build_device_config()` takes a hostname and that device's data and assembles the full config, skipping (and warning about) invalid VLANs
+- A menu builds config for one switch or `ALL`, has a `BACK` option to return to the main menu, and shows a hostname/management IP summary table
+
+**Practice file:** `day-06.py`, with a banner function, returning config strings, a boolean validator, default parameters (`portfast=True`) and scope drills.
+
+**Takeaway:** Functions should return data, not print it. Keeping the printing in the main program means the same functions can later push config to a device with Netmiko instead of just displaying it.
 
 ---
 

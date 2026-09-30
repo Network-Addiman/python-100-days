@@ -20,6 +20,7 @@ I'm a network and systems administrator with four years of MSP experience (Tier 
 | 4 | `if`/`elif`/`else`, comparison and boolean operators, `in`, truthiness, `continue` | [`day-04-conditionals-vlan_validator.py`](day-04-if-elif-else/day-04-conditionals-vlan_validator.py) | Validates a batch of VLAN requests (non-numeric, out-of-range, reserved, existing and duplicate IDs), then builds clean IOS config for the valid ones |
 | 5 | Dictionaries, `.get()`, `.items()`/`.keys()`/`.values()`, nested dicts, `while` loops | [`lab_inventory.py`](day-05-dictionaries/lab_inventory.py) | Interactive CML lab inventory: look up devices to generate interface description config, add validated devices, and view a summary table |
 | 6 | Functions, parameters and arguments, `return`, default values, scope, docstrings, nested `while` loops and `break` | [`lab_config_builder.py`](day-06-functions/lab_config_builder.py) | Menu-driven switch config builder: helper functions assemble mgmt, VLAN and access-port config per device (or all devices), skipping invalid VLANs |
+| 7 | Reading and writing files, `with open()` and file modes (`r`/`w`/`a`), `pathlib`, parsing CSV-style lines | [`day-07-config-builder.py`](day-07-read-write-files/day-07-config-builder.py) | Bulk config generator: reads a device inventory file and writes one IOS config file per router/switch, with a timestamped build log and bad-role warnings |
 
 ---
 
@@ -124,9 +125,27 @@ I'm a network and systems administrator with four years of MSP experience (Tier 
 
 ---
 
+### Day 7: File I/O and a Bulk Config Generator
+**Folder:** [`day-07-read-write-files`](day-07-read-write-files/)
+
+**Concepts:** opening files with `with open()`, file modes (`"r"` read, `"w"` overwrite, `"a"` append), `read()` vs. `readlines()` vs. looping over the file line by line, `strip()` and `split(",")` with unpacking to parse CSV-style lines, skipping blank lines and `#` comments, writing with `write()` and `"\n".join()`, `pathlib.Path` (`mkdir(exist_ok=True)` and the `/` operator for joining paths), constants, and a first look at `datetime` for timestamps.
+
+**Project: CML bulk config generator.** Instead of typing base configs by hand, I keep the lab in an [`inventory.txt`](day-07-read-write-files/inventory.txt) file (hostname, management IP, mask, role) and the script builds a config file for every device. The script:
+- Reads the inventory, ignoring blank lines and commented-out devices that aren't deployed yet
+- Uses `build_config()` to assemble shared base config (hostname, domain, MOTD banner), then adds the role-specific management interface (`Gi0/0` for routers; `Vlan99` plus a default gateway for switches)
+- Writes each device to its own file in `configs/`, for example [`R1.cfg`](day-07-read-write-files/configs/R1.cfg) and [`SW1.cfg`](day-07-read-write-files/configs/SW1.cfg)
+- Handles bad inventory lines gracefully: an unknown role (like a `siwtch` typo) prints a warning and skips that device instead of crashing
+- Appends each run to a timestamped `build.log` and prints a summary (`Built 5 configs: 3 routers, 2 switches`)
+
+**Practice file:** `day-07.py`, with read/write/append drills, writing a single config and log entry from a function, and creating folders and files with `pathlib`.
+
+**Takeaway:** Separating data from code is the big shift. The inventory file is the source of truth, so adding a device to the lab means adding one line of text, not editing the script.
+
+---
+
 ## Running the Scripts
 
-Requires Python 3. Most scripts are interactive, so run them and answer the prompts (the Day 4 validator runs on its built-in sample data):
+Requires Python 3. Most scripts are interactive, so run them and answer the prompts (the Day 4 validator runs on its built-in sample data, and the Day 7 generator reads `inventory.txt`, so run it from inside its own folder):
 
 ```bash
 cd day-03-lists-loops

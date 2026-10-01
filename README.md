@@ -21,6 +21,7 @@ I'm a network and systems administrator with four years of MSP experience (Tier 
 | 5 | Dictionaries, `.get()`, `.items()`/`.keys()`/`.values()`, nested dicts, `while` loops | [`lab_inventory.py`](day-05-dictionaries/lab_inventory.py) | Interactive CML lab inventory: look up devices to generate interface description config, add validated devices, and view a summary table |
 | 6 | Functions, parameters and arguments, `return`, default values, scope, docstrings, nested `while` loops and `break` | [`lab_config_builder.py`](day-06-functions/lab_config_builder.py) | Menu-driven switch config builder: helper functions assemble mgmt, VLAN and access-port config per device (or all devices), skipping invalid VLANs |
 | 7 | Reading and writing files, `with open()` and file modes (`r`/`w`/`a`), `pathlib`, parsing CSV-style lines | [`day-07-config-builder.py`](day-07-read-write-files/day-07-config-builder.py) | Bulk config generator: reads a device inventory file and writes one IOS config file per router/switch, with a timestamped build log and bad-role warnings |
+| 8 | Exceptions, `try`/`except`/`else`/`finally`, `raise`, the `ipaddress` module | [`inventory-checker.py`](day-08-errorhandling/inventory-checker.py) | Inventory validator: checks every line of a raw device inventory, writes the good devices to a clean file and logs each rejected line with a timestamp and reason |
 
 ---
 
@@ -143,9 +144,29 @@ I'm a network and systems administrator with four years of MSP experience (Tier 
 
 ---
 
+### Day 8: Error Handling and an Inventory Validator
+**Folder:** [`day-08-errorhandling`](day-08-errorhandling/)
+
+**Concepts:** exceptions and tracebacks, `try`/`except` with specific exception types (`ValueError`, `FileNotFoundError`), capturing the message with `except ... as err`, `else` and `finally`, raising my own exceptions with `raise ValueError(...)`, the standard-library `ipaddress` module (`ip_address()`, `ip_network()`, `ip_interface()`, `.netmask`, `in` for subnet membership), `enumerate()` for line numbers, and `next()` to skip a header row.
+
+**Project: inventory validator.** Before any inventory feeds a config generator like Day 7's, this script checks it line by line so one bad entry can't crash the run or produce a broken config. The script:
+- Prompts for the inventory file and asks again if the file doesn't exist, instead of crashing
+- Uses `validate_line()` to check each line for the right number of fields, an empty hostname, a valid prefix length (/8–/30), a valid VLAN (1–4094, not reserved 1002–1005), a real IP address, and an IP inside the lab management subnet (`10.10.99.0/24`)
+- Catches both my own `raise`d errors and Python's built-in ones (like `int("abc")` or `10.10.99.300`) in a single `except ValueError`, so every bad line is handled the same way
+- Writes the valid devices to [`clean_inventory.txt`](day-08-errorhandling/clean_inventory.txt), converting each prefix to a dotted-decimal mask ready for IOS
+- Writes a separate log for each run (for example `errors_2026-10-01_14h53m57s.log`), with one `timestamp | line number | original line | reason` entry per rejected device
+
+Sample input: [`raw_inventory.txt`](day-08-errorhandling/raw_inventory.txt) has 9 devices, of which 4 pass and 5 are rejected.
+
+**Practice file:** `day-08.py`, with `try`/`except` on user input, `else`/`finally` flow, raising custom errors, and `ipaddress` drills.
+
+**Takeaway:** Validate and log, don't crash. Collecting errors with their line numbers and reasons turns a script that dies on the first typo into a tool that tells you exactly what to fix. Timestamps belong in one place, where the log entry is written, not scattered through every error message.
+
+---
+
 ## Running the Scripts
 
-Requires Python 3. Most scripts are interactive, so run them and answer the prompts (the Day 4 validator runs on its built-in sample data, and the Day 7 generator reads `inventory.txt`, so run it from inside its own folder):
+Requires Python 3. Most scripts are interactive, so run them and answer the prompts (the Day 4 validator runs on its built-in sample data, the Day 7 generator reads `inventory.txt`, and the Day 8 validator asks for an inventory filename such as `raw_inventory.txt`, so run those two from inside their own folders):
 
 ```bash
 cd day-03-lists-loops

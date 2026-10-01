@@ -1,0 +1,5 @@
+2026-10-01 15:01:02 | Line 5 | SW2,10.10.99.300,24,99 | '10.10.99.300/24' does not appear to be an IPv4 or IPv6 interface
+2026-10-01 15:01:02 | Line 6 | SW3,10.10.99.13,24,4095 | VLAN not valid: Reserved or out-of-range VLAN
+2026-10-01 15:01:02 | Line 7 | R3,10.10.99.3,24 | Expected 4 fields
+2026-10-01 15:01:02 | Line 8 | SW4,10.10.99.14,abc,99 | invalid literal for int() with base 10: 'abc'
+2026-10-01 15:01:02 | Line 9 | ,10.10.99.15,24,99 | Hostname is empty
